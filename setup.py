@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(name='cabot-alert-sensu',
-      version='0.0.1',
+      version='0.0.2',
       description='A Cabot alert plugin for Sensu',
       author='Nicolas Truyens',
       author_email='nicolas@truyens.com',
