@@ -1,5 +1,14 @@
 from django.db import models
+#from django.conf import settings
+#from django.template import Context, Template
+
 from cabot.cabotapp.alert import AlertPlugin, AlertPluginUserData
+
+from os import environ as env
+
+#import requests
+
+#sb_alert_url = env['STASHBOARD_URI']
 
 class SensuAlert(AlertPlugin):
     name = "Sensu"
@@ -14,7 +23,6 @@ class SensuAlert(AlertPlugin):
         
         return
 
-class SkeletonAlertUserData(AlertPluginUserData):
-    name = "Sensu Plugin"
-    #favorite_bone = models.CharField(max_length=50, blank=True)
-
+# class SensuAlertUserData(AlertPluginUserData):
+#     name = "Sensu Plugin"
+#     #favorite_bone = models.CharField(max_length=50, blank=True)
