@@ -8,7 +8,7 @@ from os import environ as env
 
 #import requests
 
-sensu_port = env['SENSU_PORT'] or '3030'
+sensu_port = env.get('SENSU_PORT') or '3030'
 
 class SensuAlert(AlertPlugin):
     name = "Sensu"
