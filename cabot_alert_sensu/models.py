@@ -19,12 +19,12 @@ class SensuAlert(AlertPlugin):
         if (len(parts) == 1 or len(parts) == 2):
              if (len(parts) == 1):
                 source = 'network'
-                check = service.name
+                checkname = service.name
              else:
                 source = parts[0]
-                check = parts[1]
+                checkname = parts[1]
         else:
-            print "The service name should contain 1 underscore to split up source and check name."
+            print "The service name should contain (maximum) 1 underscore to split up source and check name."
             # TODO - RAISE ERROR ?
             return
             
@@ -36,14 +36,25 @@ class SensuAlert(AlertPlugin):
             status = 2
         elif service.overall_status == service.ERROR_STATUS:
             status = 3
+                
+        outputs = list()
+        for check in service.all_failing_checks():
+            outputs.append(check.last_result().raw_data)
         
-        output = check.last_result().raw_data
+        output = ", ".join(outputs)
         
+        handlerList = list()         
         for user in users:
-            userdata = SensuAlertUserData.objects.get(user=user, title=SensuAlertUserData.name)
-            handlers = userdata.handlers
+            userData = SensuAlertUserData.objects.get(user=user, title=SensuAlertUserData.name)
+            userHandlers = userData.handlers
+            parts = userHandlers.split(",")
+            for part in parts:
+                handlerList.append('"'+part+'"')
+            
+        uniqueHandlerList = set(handlerList)
+        handlers = "[" + ",".join(uniqueHandlerList) + "]"
         
-            send_sensu_alert(source=source, check=check, status=status, output=output, handlers=handlers)
+        send_sensu_alert(source=source, check=checkname, status=status, output=output, handlers=handlers)
         
         return
     
@@ -51,8 +62,7 @@ class SensuAlert(AlertPlugin):
         #fo = open("/dev/tcp/localhost/3030", "w")
         fo = open("/tmp/cabot_sensu", "w")        
         
-        fo.write( '{"name": "'+check+'", "source": "'+source+'", "status": '+status+', "output": "'+output+'", "handlers": ['+handlers+'] }' );
-            #echo '{"name": "app_01", "output": "could not connect to mysql", "status": 1}' > 
+        fo.write( '{"name": "'+check+'", "source": "'+source+'", "status": '+status+', "output": "'+output+'", "handlers": '+handlers+' }' )
             
         fo.close()
 
