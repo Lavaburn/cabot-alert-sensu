@@ -45,20 +45,23 @@ class SensuAlert(AlertPlugin):
         
         handlerList = list()         
         for user in users:
-            userData = SensuAlertUserData.objects.get(user=user, title=SensuAlertUserData.name)
-            userHandlers = userData.handlers
-            parts = userHandlers.split(",")
-            for part in parts:
-                handlerList.append('"'+part+'"')
+            try:
+                userData = SensuAlertUserData.objects.get(user=user, title=SensuAlertUserData.name)
+                userHandlers = userData.handlers
+                parts = userHandlers.split(",")
+                for part in parts:
+                    handlerList.append('"'+part+'"')
+            except:
+                pass
             
         uniqueHandlerList = set(handlerList)
         handlers = "[" + ",".join(uniqueHandlerList) + "]"
         
-        send_sensu_alert(source=source, check=checkname, status=status, output=output, handlers=handlers)
+        self._send_sensu_alert(source=source, check=checkname, status=status, output=output, handlers=handlers)
         
         return
     
-    def send_sensu_alert(source, check, status, output, handlers):
+    def _send_sensu_alert(self, source, check, status, output, handlers):
         #fo = open("/dev/tcp/localhost/3030", "w")
         fo = open("/tmp/cabot_sensu", "w")        
         
