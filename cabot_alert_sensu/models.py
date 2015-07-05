@@ -62,8 +62,7 @@ class SensuAlert(AlertPlugin):
         return
     
     def _send_sensu_alert(self, source, check, status, output, handlers):
-        #fo = open("/dev/tcp/localhost/3030", "w")
-        fo = open("/tmp/cabot_sensu", "w")        
+        fo = open("/dev/tcp/localhost/3030", "w")
         
         fo.write( '{"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'", "handlers": '+handlers+' }' )
             
