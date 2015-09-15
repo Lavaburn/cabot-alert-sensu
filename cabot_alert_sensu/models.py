@@ -16,8 +16,8 @@ class SensuAlert(AlertPlugin):
     author = "Nicolas Truyens"
 
     def send_alert(self, service, users, duty_officers):
-        debug = open("/var/log/cabot/alert_sensu.log", "a")
         if DEBUG:
+            debug = open("/var/log/cabot/alert_sensu.log", "a")
             debug.write( 'Sending alert to Sensu.\n' )
         
         parts = service.name.split("_")
@@ -68,11 +68,10 @@ class SensuAlert(AlertPlugin):
                 
         if DEBUG:
             debug.write( 'handlers: ' + handlers + '\n' )        
+            debug.close()
             
         self._send_sensu_alert(source=source, check=checkname, status=status, output=output, handlers=handlers)
-        
-        debug.close()
-        
+                
         return
     
     def _send_sensu_alert(self, source, check, status, output, handlers):
