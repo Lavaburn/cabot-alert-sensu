@@ -18,7 +18,7 @@ class SensuAlert(AlertPlugin):
     def send_alert(self, service, users, duty_officers):
         debug = open("/var/log/cabot/alert_sensu.log", "a")
         if DEBUG:
-            debug.write( 'Sending alert to Sensu.' )
+            debug.write( 'Sending alert to Sensu.\n' )
         
         parts = service.name.split("_")
         if (len(parts) == 1 or len(parts) == 2):
@@ -46,10 +46,11 @@ class SensuAlert(AlertPlugin):
         for check in service.all_failing_checks():
             outputs.append(check.last_result().raw_data)
         
-        output = ", ".join(outputs)
+        #output = ", ".join(outputs)
+        output = 'TEST'
         
         if DEBUG:
-            debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + str(status) + ' - output: ' + output )        
+            debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + str(status) + ' - output: ' + output + '\n' )        
         
         handlerList = list()         
         for user in users:
@@ -66,7 +67,7 @@ class SensuAlert(AlertPlugin):
         handlers = "[" + ",".join(uniqueHandlerList) + "]"
                 
         if DEBUG:
-            debug.write( 'handlers: ' + handlers )        
+            debug.write( 'handlers: ' + handlers + '\n' )        
             
         self._send_sensu_alert(source=source, check=checkname, status=status, output=output, handlers=handlers)
         
@@ -77,14 +78,14 @@ class SensuAlert(AlertPlugin):
     def _send_sensu_alert(self, source, check, status, output, handlers):
         URL = '/dev/tcp/localhost/' + sensu_port
         
-        fo = open(URL, "w")        
-        fo.write( '{"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'", "handlers": '+handlers+' }' )            
-        fo.close()
-        
         if DEBUG:
             debug = open("/var/log/cabot/alert_sensu.log", "a")
-            debug.write( 'SENDING {"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'", "handlers": '+handlers+' } TO ' + URL )   
+            debug.write( 'SENDING {"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'", "handlers": '+handlers+' } TO ' + URL + '\n' )   
             debug.close()
+        
+        fo = open(URL, "w")        
+        fo.write( '{"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'", "handlers": '+handlers+' }\n' )            
+        fo.close()
 
 class SensuAlertUserData(AlertPluginUserData):
      name = "Sensu Plugin"
