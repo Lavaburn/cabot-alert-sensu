@@ -9,7 +9,7 @@ from os import environ as env
 #import requests
 
 sensu_port = env.get('SENSU_PORT') or '3030'
-DEBUG = env.get('SENSU_DEBUG') or true          # TODO - set default to false
+DEBUG = env.get('SENSU_DEBUG') or True          # TODO - set default to False
 
 class SensuAlert(AlertPlugin):
     name = "Sensu"
