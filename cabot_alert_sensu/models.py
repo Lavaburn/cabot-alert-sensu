@@ -6,6 +6,8 @@ from cabot.cabotapp.alert import AlertPlugin, AlertPluginUserData
 
 from os import environ as env
 
+import socket
+import sys
 #import requests
 
 sensu_port = env.get('SENSU_PORT') or '3030'
@@ -82,9 +84,15 @@ class SensuAlert(AlertPlugin):
             debug.write( 'SENDING {"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'", "handlers": '+handlers+' } TO ' + URL + '\n' )   
             debug.close()
         
-        fo = open(URL, "w")        
-        fo.write( '{"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'", "handlers": '+handlers+' }\n' )            
-        fo.close()
+        # Only works in bash ???
+#         fo = open(URL, "w")        
+#         fo.write( '{"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'", "handlers": '+handlers+' }\n' )            
+#         fo.close()
+             
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect(('127.0.0.1', sensu_port))
+        s.send( '{"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'", "handlers": '+handlers+' }\n' )
+        s.close()
 
 class SensuAlertUserData(AlertPluginUserData):
      name = "Sensu Plugin"
