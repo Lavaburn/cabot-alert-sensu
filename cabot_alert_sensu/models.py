@@ -11,7 +11,7 @@ import sys
 #import requests
 
 sensu_port = env.get('SENSU_PORT') or '3030'
-sensu_host = env.get('SENSU_HOST') or '127.0.0.1'
+sensu_host = env.get('SENSU_HOST') or 'localhost'
 DEBUG = env.get('SENSU_DEBUG') or True          # TODO - set default to False
 
 class SensuAlert(AlertPlugin):
@@ -88,15 +88,16 @@ class SensuAlert(AlertPlugin):
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             
-            s.settimeout(5)
+#             s.settimeout(5)
+            s.setblocking(0)
             
             debug.write('Connecting to '+sensu_host+' on port '+sensu_port+'\n' )    
             res = s.connect((sensu_host, sensu_port))
             
-            debug.write('C\n' )        
+            debug.write('Connected! ('+res+')\n' )        
             if (res != True):
                 debug.write('Unable to connect to '+URL+'\n' )   
-            res2 = s.sendall(DATA)
+            res2 = s.send(DATA)
             
             debug.write('D\n' )        
             if (res2 != True):
