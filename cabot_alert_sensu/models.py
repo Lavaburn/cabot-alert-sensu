@@ -45,15 +45,18 @@ class SensuAlert(AlertPlugin):
         elif service.overall_status == service.ERROR_STATUS:
             status = '3'
                 
-        outputs = list()
-        for check in service.all_failing_checks():
-            outputs.append(check.last_result().raw_data)
-        
-        output = ", ".join(outputs)
-        #output = 'TEST'
+#         outputs = list()
+#         for check in service.all_failing_checks():
+#             outputs.append(check.last_result().raw_data)
+#         
+#         output = ", ".join(outputs)
+#         output = check.last_result().target
+#         check.last_result().datapoints
+        output = 'Service '+service.name+' is resulting in '+str(service.overall_status)
+        exta_data = '"service": '+str(service)+', "failing":'+str(service.all_failing_checks())
         
         if DEBUG:
-            debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + '\n' )        
+            debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + ' - extra_data: ' + exta_data + '\n' )        
         
         handlerList = list()         
         for user in users:
@@ -73,18 +76,18 @@ class SensuAlert(AlertPlugin):
             debug.write( 'handlers: ' + handlers + '\n' )        
             debug.close()
             
-        self._send_sensu_alert(source=source, check=checkname, status=status, output=output, handlers=handlers)
+        self._send_sensu_alert(source=source, check=checkname, status=status, output=output, handlers=handlers, exta_data=exta_data)
                 
         return
     
-    def _send_sensu_alert(self, source, check, status, output, handlers):
+    def _send_sensu_alert(self, source, check, status, output, handlers, exta_data=''):
         try: 
             port = int(sensu_port)
         except ValueError:
             port = sensu_port
                 
         ADDR = (sensu_host, port)
-        DATA = '{"name": "'+check+'", "source": "'+source+'", "status": '+status+', "output": "'+output+'", "handlers": '+handlers+' }'
+        DATA = '{"name": "'+check+'", "source": "'+source+'", "status": '+status+', "output": "'+output+'", "handlers": '+handlers+exta_data+' }'
         
         if DEBUG:
             debug = open("/var/log/cabot/alert_sensu.log", "a")
