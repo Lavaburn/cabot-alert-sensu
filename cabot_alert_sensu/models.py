@@ -87,17 +87,19 @@ class SensuAlert(AlertPlugin):
         
         try:
             # UDP
+            debug.write('UDP\n')
             s2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s2.sendto('{"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'2", "handlers": '+handlers+' }', sensu_host)
+            s2.sendto(bytes('{"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'2", "handlers": '+handlers+' }', "utf-8"), (sensu_host, sensu_port))
 
-            # TCP                        
+            # TCP    
+            debug.write('TCP\n')                    
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)                         
             debug.write('Connecting to '+sensu_host+' on port '+sensu_port+'\n')
                 
             s.connect((sensu_host, sensu_port))
             debug.write('Connected!\n')
                     
-            s.send(DATA)            
+            s.send(DATA)            #bytes(DATA, "utf-8")
             debug.write('Sent!\n')
                             
             s.close()
