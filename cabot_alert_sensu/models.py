@@ -78,15 +78,17 @@ class SensuAlert(AlertPlugin):
         return
     
     def _send_sensu_alert(self, source, check, status, output, handlers):
-        if (is_int(sensu_port) != True):
-            sensu_port = int(sensu_port)
+        try: 
+            port = int(sensu_port)
+        except ValueError:
+            port = sensu_port
                 
-        ADDR = (sensu_host, sensu_port)
+        ADDR = (sensu_host, port)
         DATA = '{"name": "'+check+'", "source": "'+source+'", "status": '+status+', "output": "'+output+'", "handlers": '+handlers+' }'
         
         debug = open("/var/log/cabot/alert_sensu.log", "a")
         if DEBUG:
-            debug.write( 'Sending '+DATA+' to '+sensu_host+' on port '+sensu_port+'\n' )   
+            debug.write( 'Sending '+DATA+' to '+sensu_host+' on port '+str(port)+'\n' )   
         
         try:
             # UDP
@@ -97,7 +99,7 @@ class SensuAlert(AlertPlugin):
             # TCP    
             debug.write('TCP:\n')                    
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)                         
-            debug.write('Connecting to '+sensu_host+' on port '+sensu_port+'\n')
+            debug.write('Connecting to '+sensu_host+' on port '+str(port)+'\n')
                 
             s.connect(ADDR)
             debug.write('Connected!\n')
