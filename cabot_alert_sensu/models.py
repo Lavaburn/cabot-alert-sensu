@@ -94,7 +94,7 @@ class SensuAlert(AlertPlugin):
         res = s.connect((sensu_host, sensu_port))
         if (res != True):
             debug.write('Unable to connect to '+URL+'\n' )   
-        res2 = socket.SendString(DATA)
+        res2 = s.sendall(DATA)
         if (res2 != True):
             debug.write('Unable to send data to '+URL+': ' + socket.lastErrorText() + '\n')        
         s.close()
