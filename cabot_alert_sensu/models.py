@@ -85,17 +85,12 @@ class SensuAlert(AlertPlugin):
         if DEBUG:
             debug.write( 'SENDING '+DATA+' TO '+URL+'\n' )   
         
-        # Only works in bash ???
-#         fo = open(URL, "w")        
-#         fo.write( '{"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'", "handlers": '+handlers+' }\n' )            
-#         fo.close()
-
-        debug.write('T\n' )       
         try:
-            debug.write('A\n' )        
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             
-            debug.write('B\n' )        
+            s.settimeout(5)
+            
+            debug.write('Connecting to '+sensu_host+' on port '+sensu_port+'\n' )    
             res = s.connect((sensu_host, sensu_port))
             
             debug.write('C\n' )        
