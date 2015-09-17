@@ -89,7 +89,7 @@ class SensuAlert(AlertPlugin):
             # UDP
             debug.write('UDP\n')
             s2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s2.sendto(bytes(DATA, "utf-8"), (sensu_host, sensu_port))
+            s2.sendto(DATA, (sensu_host, sensu_port))
 
             # TCP    
             debug.write('TCP\n')                    
