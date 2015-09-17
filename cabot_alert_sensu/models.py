@@ -89,15 +89,28 @@ class SensuAlert(AlertPlugin):
 #         fo = open(URL, "w")        
 #         fo.write( '{"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'", "handlers": '+handlers+' }\n' )            
 #         fo.close()
-             
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        res = s.connect((sensu_host, sensu_port))
-        if (res != True):
-            debug.write('Unable to connect to '+URL+'\n' )   
-        res2 = s.sendall(DATA)
-        if (res2 != True):
-            debug.write('Unable to send data to '+URL+': ' + socket.lastErrorText() + '\n')        
-        s.close()
+
+        debug.write('T\n' )       
+        try:
+            debug.write('A\n' )        
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            
+            debug.write('B\n' )        
+            res = s.connect((sensu_host, sensu_port))
+            
+            debug.write('C\n' )        
+            if (res != True):
+                debug.write('Unable to connect to '+URL+'\n' )   
+            res2 = s.sendall(DATA)
+            
+            debug.write('D\n' )        
+            if (res2 != True):
+                debug.write('Unable to send data to '+URL+': ' + s.lastErrorText() + '\n')
+                
+            debug.write('E\n' )                
+            s.close()
+        except socket.error, msg:
+            debug.write( 'Exception: ' + msg + '\n' )                
         
         debug.close() 
 
