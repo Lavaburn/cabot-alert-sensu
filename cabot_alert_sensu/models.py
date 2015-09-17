@@ -86,27 +86,24 @@ class SensuAlert(AlertPlugin):
             debug.write( 'SENDING '+DATA+' TO '+URL+'\n' )   
         
         try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            
-#             s.settimeout(5)
-            s.setblocking(0)
-            
-            debug.write('Connecting to '+sensu_host+' on port '+sensu_port+'\n' )    
-            res = s.connect((sensu_host, sensu_port))
-            
-            debug.write('Connected! ('+res+')\n' )        
-            if (res != True):
-                debug.write('Unable to connect to '+URL+'\n' )   
-            res2 = s.send(DATA)
-            
-            debug.write('D\n' )        
-            if (res2 != True):
-                debug.write('Unable to send data to '+URL+': ' + s.lastErrorText() + '\n')
+            # UDP
+            s2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s2.sendto('{"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'2", "handlers": '+handlers+' }', sensu_host)
+
+            # TCP                        
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)                         
+            debug.write('Connecting to '+sensu_host+' on port '+sensu_port+'\n')
                 
-            debug.write('E\n' )                
+            s.connect((sensu_host, sensu_port))
+            debug.write('Connected!\n')
+                    
+            s.send(DATA)            
+            debug.write('Sent!\n')
+                            
             s.close()
+            debug.write('Closed!!\n')
         except socket.error, msg:
-            debug.write( 'Exception: ' + msg + '\n' )                
+            debug.write('Exception: ' + msg + '\n')                
         
         debug.close() 
 
