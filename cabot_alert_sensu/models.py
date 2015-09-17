@@ -10,9 +10,9 @@ import socket
 import sys
 #import requests
 
-sensu_port = env.get('SENSU_PORT') or '3030'
+sensu_port = env.get('SENSU_PORT') or 3030              # Integer required !!!
 sensu_host = env.get('SENSU_HOST') or 'localhost'
-DEBUG = env.get('SENSU_DEBUG') or True          # TODO - set default to False
+DEBUG = env.get('SENSU_DEBUG') or True                  # TODO - set default to False
 
 class SensuAlert(AlertPlugin):
     name = "Sensu"
