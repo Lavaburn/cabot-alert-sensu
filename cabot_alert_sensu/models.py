@@ -49,8 +49,8 @@ class SensuAlert(AlertPlugin):
         for check in service.all_failing_checks():
             outputs.append(check.last_result().raw_data)
         
-        #output = ", ".join(outputs)
-        output = 'TEST'
+        output = ", ".join(outputs)
+        #output = 'TEST'
         
         if DEBUG:
             debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + '\n' )        
@@ -86,33 +86,30 @@ class SensuAlert(AlertPlugin):
         ADDR = (sensu_host, port)
         DATA = '{"name": "'+check+'", "source": "'+source+'", "status": '+status+', "output": "'+output+'", "handlers": '+handlers+' }'
         
-        debug = open("/var/log/cabot/alert_sensu.log", "a")
         if DEBUG:
-            debug.write( 'Sending '+DATA+' to '+sensu_host+' on port '+str(port)+'\n' )   
+            debug = open("/var/log/cabot/alert_sensu.log", "a")
         
         try:
-            # UDP
-            debug.write('UDP:\n')
-            s2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s2.sendto(DATA, ADDR)
-
-            # TCP    
-            debug.write('TCP:\n')                    
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)                         
-            debug.write('Connecting to '+sensu_host+' on port '+str(port)+'\n')
+            if DEBUG:
+                debug.write('Connecting to '+sensu_host+' on port '+str(port)+'\n')
                 
             s.connect(ADDR)
-            debug.write('Connected!\n')
+            if DEBUG:
+                debug.write('Connected!\n')
                     
-            s.send(DATA)            #bytes(DATA, "utf-8")
-            debug.write('Sent!\n')
+            s.send(DATA)
+            if DEBUG:
+                debug.write('Sent Data: '+DATA+'\n')
                             
             s.close()
-            debug.write('Closed!!\n')
         except socket.error, msg:
-            debug.write('Exception: ' + msg + '\n')                
+            print('Exception: ' + msg + '\n')
+            if DEBUG:
+                debug.write('Exception: ' + msg + '\n')                
         
-        debug.close() 
+        if DEBUG:
+            debug.close() 
 
 class SensuAlertUserData(AlertPluginUserData):
      name = "Sensu Plugin"
