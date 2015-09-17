@@ -11,6 +11,7 @@ import sys
 #import requests
 
 sensu_port = env.get('SENSU_PORT') or '3030'
+sensu_host = env.get('SENSU_HOST') or '127.0.0.1'
 DEBUG = env.get('SENSU_DEBUG') or True          # TODO - set default to False
 
 class SensuAlert(AlertPlugin):
@@ -77,12 +78,12 @@ class SensuAlert(AlertPlugin):
         return
     
     def _send_sensu_alert(self, source, check, status, output, handlers):
-        URL = '/dev/tcp/localhost/' + sensu_port
+        URL = sensu_host + ':' + sensu_port
+        DATA = '{"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'", "handlers": '+handlers+' }'
         
+        debug = open("/var/log/cabot/alert_sensu.log", "a")
         if DEBUG:
-            debug = open("/var/log/cabot/alert_sensu.log", "a")
-            debug.write( 'SENDING {"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'", "handlers": '+handlers+' } TO ' + URL + '\n' )   
-            debug.close()
+            debug.write( 'SENDING '+DATA+' TO '+URL+'\n' )   
         
         # Only works in bash ???
 #         fo = open(URL, "w")        
@@ -90,9 +91,15 @@ class SensuAlert(AlertPlugin):
 #         fo.close()
              
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(('127.0.0.1', sensu_port))
-        s.send( '{"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'", "handlers": '+handlers+' }\n' )
+        res = s.connect((sensu_host, sensu_port))
+        if (res != True):
+            debug.write('Unable to connect to '+URL+'\n' )   
+        res2 = socket.SendString(DATA)
+        if (res2 != True):
+            debug.write('Unable to send data to '+URL+': ' + socket.lastErrorText() + '\n')        
         s.close()
+        
+        debug.close() 
 
 class SensuAlertUserData(AlertPluginUserData):
      name = "Sensu Plugin"
