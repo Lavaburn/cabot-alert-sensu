@@ -37,13 +37,13 @@ class SensuAlert(AlertPlugin):
             return
             
         if service.overall_status == service.PASSING_STATUS:
-            status = 0
+            status = '0'
         elif service.overall_status == service.WARNING_STATUS:
-            status = 1
+            status = '1'
         elif service.overall_status == service.CRITICAL_STATUS:
-            status = 2
+            status = '2'
         elif service.overall_status == service.ERROR_STATUS:
-            status = 3
+            status = '3'
                 
         outputs = list()
         for check in service.all_failing_checks():
@@ -53,7 +53,7 @@ class SensuAlert(AlertPlugin):
         output = 'TEST'
         
         if DEBUG:
-            debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + str(status) + ' - output: ' + output + '\n' )        
+            debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + '\n' )        
         
         handlerList = list()         
         for user in users:
@@ -79,7 +79,7 @@ class SensuAlert(AlertPlugin):
     
     def _send_sensu_alert(self, source, check, status, output, handlers):
         URL = sensu_host + ':' + sensu_port
-        DATA = '{"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'", "handlers": '+handlers+' }'
+        DATA = '{"name": "'+check+'", "source": "'+source+'", "status": '+status+', "output": "'+output+'", "handlers": '+handlers+' }'
         
         debug = open("/var/log/cabot/alert_sensu.log", "a")
         if DEBUG:
@@ -89,7 +89,7 @@ class SensuAlert(AlertPlugin):
             # UDP
             debug.write('UDP\n')
             s2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s2.sendto(bytes('{"name": "'+check+'", "source": "'+source+'", "status": '+str(status)+', "output": "'+output+'2", "handlers": '+handlers+' }', "utf-8"), (sensu_host, sensu_port))
+            s2.sendto(bytes(DATA, "utf-8"), (sensu_host, sensu_port))
 
             # TCP    
             debug.write('TCP\n')                    
