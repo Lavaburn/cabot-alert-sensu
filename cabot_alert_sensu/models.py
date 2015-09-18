@@ -50,9 +50,10 @@ class SensuAlert(AlertPlugin):
         for check in service.all_failing_checks():
             result = check.last_result()
             
-            raw_data = json.loads(result.raw_data)
+            for raw_data_row in result.raw_data:
+                datapoints = raw_data_row.datapoints
             
-            extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'datapoints': raw_data.datapoints }
+            extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'datapoints': datapoints }
             
         output = 'Service '+service.name+': '+str(service.overall_status)
         exta_data = ', "extra_info": '+json.dumps(extra_info)
