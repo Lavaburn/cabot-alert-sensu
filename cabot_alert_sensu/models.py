@@ -8,6 +8,7 @@ from os import environ as env
 
 import socket
 import sys
+import json
 #import requests
 
 sensu_port = env.get('SENSU_PORT') or 3030              # Integer required !!!
@@ -45,20 +46,16 @@ class SensuAlert(AlertPlugin):
         elif service.overall_status == service.ERROR_STATUS:
             status = '3'
                 
-        outputs1 = list()
-        outputs2 = list()
-        outputs3 = list()
-        outputs4 = list()
+        extra_info = dict()
         for check in service.all_failing_checks():
             result = check.last_result()
             
-            outputs1.append(str(check.name))
-            outputs2.append(str(result.error))
-            outputs3.append(str(result.took))
-            outputs4.append(str(result.short_error)) 
-
+            raw_data = json.loads(result.raw_data)
+            
+            extra_info[check.name] = { metric: check.metric, took: result.took+' ms', error: result.error, raw_data: result.raw_data }
+            
         output = 'Service '+service.name+': '+str(service.overall_status)
-        exta_data = ', "check": "'+",".join(outputs1)+'", "error": "'+",".join(outputs2)+'", "took": "'+",".join(outputs3)+'", "short_error": "'+",".join(outputs4)+'"'
+        exta_data = ', "extra_info": "'+json.dumps(extra_info)+'"'
         
         if DEBUG:
             debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + ' - extra_data: ' + exta_data + '\n' )        
