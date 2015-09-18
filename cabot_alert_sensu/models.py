@@ -51,7 +51,7 @@ class SensuAlert(AlertPlugin):
         outputs4 = list()
         outputs5 = list()
         for check in service.all_failing_checks():
-            result = check.last_result
+            result = check.last_result()
                         
             outputs1.append(str(result.time))
             outputs2.append(str(result.time_complete)) 
