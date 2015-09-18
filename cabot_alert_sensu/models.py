@@ -18,6 +18,11 @@ DEBUG = env.get('SENSU_DEBUG') or False
 class SensuAlert(AlertPlugin):
     name = "Sensu"
     author = "Nicolas Truyens"
+    
+    def xstr(s):
+        if s is None:
+            return ''
+        return str(s)
 
     def send_alert(self, service, users, duty_officers):
         if DEBUG:
@@ -56,7 +61,7 @@ class SensuAlert(AlertPlugin):
             extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'datapoints': datapoints }
             
         output = 'Service '+service.name+': '+str(service.overall_status)
-        exta_data = ', "extra_info": '+json.dumps(extra_info)+', "service_url": "'+service.url+'", "recovery_url": "'+service.hackpad_id+'"'
+        exta_data = ', "extra_info": '+json.dumps(extra_info)+', "service_url": "'+self.xstr(service.url)+'", "recovery_url": "'+self.xstr(service.hackpad_id)+'"'
         
         if DEBUG:
             debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + ' - extra_data: ' + exta_data + '\n' )        
