@@ -50,8 +50,8 @@ class SensuAlert(AlertPlugin):
         for check in service.all_failing_checks():
             result = check.last_result()
             
-            for raw_data_row in result.raw_data:
-                datapoints = raw_data_row.datapoints
+            for raw_data_row in json.loads(result.raw_data):
+                datapoints = raw_data_row       #STRING => DECODE AGAIN? .datapoints
             
             extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'datapoints': datapoints }
             
