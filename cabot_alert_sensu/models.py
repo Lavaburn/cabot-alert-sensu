@@ -54,8 +54,8 @@ class SensuAlert(AlertPlugin):
             outputs1.append(str(check.recent_results))
             outputs2.append(str(check.last_result)) 
             outputs3.append(str(check.name)) 
-            outputs4.append(str(check.average_value))
-            outputs5.append(str(check.error)) 
+#             outputs4.append(str(check.average_value))
+#             outputs5.append(str(check.error)) 
 
         output = 'Service '+service.name+': '+str(service.overall_status)
         exta_data = ', "recent_results": "'+",".join(outputs1)+'", "last_result": "'+",".join(outputs2)+'", "name": "'+",".join(outputs3)+'", "average_value": "'+",".join(outputs4)+'", "error": "'+",".join(outputs5)+'"'
