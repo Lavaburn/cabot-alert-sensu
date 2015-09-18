@@ -49,16 +49,16 @@ class SensuAlert(AlertPlugin):
         outputs2 = list()
         outputs3 = list()
         outputs4 = list()
-        outputs5 = list()
         for check in service.all_failing_checks():
             result = check.last_result()
-                        
-            outputs1.append(str(result.error))
-            outputs2.append(str(result.took())) 
-            outputs3.append(str(result.short_error())) 
+            
+            outputs1.append(str(check.name))
+            outputs2.append(str(result.error))
+            outputs3.append(str(result.took))
+            outputs4.append(str(result.short_error)) 
 
         output = 'Service '+service.name+': '+str(service.overall_status)
-        exta_data = ', "error": "'+",".join(outputs1)+'", "took": "'+",".join(outputs2)+'", "short_error": "'+",".join(outputs3)+'"'
+        exta_data = ', "check": "'+",".join(outputs1)+'", "error": "'+",".join(outputs2)+'", "took": "'+",".join(outputs3)+'", "short_error": "'+",".join(outputs4)+'"'
         
         if DEBUG:
             debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + ' - extra_data: ' + exta_data + '\n' )        
