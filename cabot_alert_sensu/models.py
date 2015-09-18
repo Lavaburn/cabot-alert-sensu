@@ -52,10 +52,10 @@ class SensuAlert(AlertPlugin):
             
             raw_data = json.loads(result.raw_data)
             
-            extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'raw_data': result.raw_data }
+            extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'datapoints': raw_data.datapoints }
             
         output = 'Service '+service.name+': '+str(service.overall_status)
-        exta_data = ', "extra_info": "'+json.dumps(extra_info)+'"'
+        exta_data = ', "extra_info": '+json.dumps(extra_info)
         
         if DEBUG:
             debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + ' - extra_data: ' + exta_data + '\n' )        
