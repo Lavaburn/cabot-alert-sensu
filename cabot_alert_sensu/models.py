@@ -13,7 +13,7 @@ import json
 
 sensu_port = env.get('SENSU_PORT') or 3030              # Integer required !!!
 sensu_host = env.get('SENSU_HOST') or 'localhost'
-DEBUG = env.get('SENSU_DEBUG') or True                  # TODO - set default to False
+DEBUG = env.get('SENSU_DEBUG') or False
 
 class SensuAlert(AlertPlugin):
     name = "Sensu"
@@ -51,7 +51,7 @@ class SensuAlert(AlertPlugin):
             result = check.last_result()
             
             for raw_data_row in json.loads(result.raw_data):
-                datapoints = raw_data_row       #STRING => DECODE AGAIN? .datapoints
+                datapoints = raw_data_row["datapoints"]
             
             extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'datapoints': datapoints }
             
