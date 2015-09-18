@@ -45,12 +45,20 @@ class SensuAlert(AlertPlugin):
         elif service.overall_status == service.ERROR_STATUS:
             status = '3'
                 
-        outputs = list()
+        outputs1 = list()
+        outputs2 = list()
+        outputs3 = list()
+        outputs4 = list()
+        outputs5 = list()
         for check in service.all_failing_checks():
-            outputs.append(str(check))  #.last_result (target/outputs)
+            outputs1.append(str(check.recent_results))
+            outputs2.append(str(check.last_result)) 
+            outputs3.append(str(check.name)) 
+            outputs4.append(str(check.average_value))
+            outputs5.append(str(check.error)) 
 
         output = 'Service '+service.name+': '+str(service.overall_status)
-        exta_data = ', "failing": "'+",".join(outputs)+'"'
+        exta_data = ', "recent_results": "'+",".join(outputs1)+'", "last_result": "'+",".join(outputs2)+'", "name": "'+",".join(outputs3)+'", "average_value": "'+",".join(outputs4)+'", "error": "'+",".join(outputs5)+'"'
         
         if DEBUG:
             debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + ' - extra_data: ' + exta_data + '\n' )        
