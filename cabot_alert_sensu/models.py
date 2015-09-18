@@ -19,7 +19,7 @@ class SensuAlert(AlertPlugin):
     name = "Sensu"
     author = "Nicolas Truyens"
     
-    def xstr(s):
+    def xstr(self, s):
         if s is None:
             return ''
         return str(s)
