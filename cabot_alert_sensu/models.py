@@ -28,7 +28,7 @@ class SensuAlert(AlertPlugin):
         if DEBUG:
             debug = open("/var/log/cabot/alert_sensu.log", "a")
             debug.write( 'Sending alert to Sensu.\n' )
-        
+            
         parts = service.name.split("_")
         if (len(parts) == 1 or len(parts) == 2):
              if (len(parts) == 1):
@@ -41,6 +41,10 @@ class SensuAlert(AlertPlugin):
             print "The service name should contain (maximum) 1 underscore to split up source and check name."
             # TODO - RAISE ERROR ?
             return
+        
+        tags = list()    
+        tags.append(source)
+        tags.append(checkname)
             
         if service.overall_status == service.PASSING_STATUS:
             status = '0'
@@ -59,9 +63,25 @@ class SensuAlert(AlertPlugin):
                 datapoints = raw_data_row["datapoints"]
             
             extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'datapoints': datapoints }
-            
+        
+        # Tags
+        for linked_instance in service.instances:
+            instance_parts = linked_instance.name.split("_")
+            for part in instance_parts:
+                tags.append(part)
+        
+        for linked_check in service.status_checks:
+            check_parts = linked_check.name.split("_")
+            for part in check_parts:
+                tags.append(part)
+        
+        hackpad = self.xstr(service.hackpad_id)
+        hackpad_parts = hackpad.split(",")
+        for part in hackpad_parts:
+            tags.append(part)
+        
         output = 'Service '+service.name+': '+str(service.overall_status)
-        exta_data = ', "extra_info": '+json.dumps(extra_info)+', "service_url": "'+self.xstr(service.url)+'", "recovery_url": "'+self.xstr(service.hackpad_id)+'"'
+        exta_data = ', "extra_info": '+json.dumps(extra_info)+', "service_url": "'+self.xstr(service.url)+'", "tags": "'+','.join(tags)+'"'
         
         if DEBUG:
             debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + ' - extra_data: ' + exta_data + '\n' )        
