@@ -65,12 +65,12 @@ class SensuAlert(AlertPlugin):
             extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'datapoints': datapoints }
         
         # Tags
-        for linked_instance in service.instances.all:
+        for linked_instance in service.instances.all():
             instance_parts = linked_instance.name.split("_")
             for part in instance_parts:
                 tags.append(part)
         
-        for linked_check in service.status_checks.all:
+        for linked_check in service.status_checks.all():
             check_parts = linked_check.name.split("_")
             for part in check_parts:
                 tags.append(part)
