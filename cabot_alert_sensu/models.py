@@ -79,9 +79,11 @@ class SensuAlert(AlertPlugin):
         hackpad_parts = hackpad.split(",")
         for part in hackpad_parts:
             tags.append(part)
+            
+        tags_unique = set(tags)
         
         output = 'Service '+service.name+': '+str(service.overall_status)
-        exta_data = ', "extra_info": '+json.dumps(extra_info)+', "service_url": "'+self.xstr(service.url)+'", "tags": "'+','.join(tags)+'"'
+        exta_data = ', "extra_info": '+json.dumps(extra_info)+', "service_url": "'+self.xstr(service.url)+'", "tags": '+json.dumps(tags_unique)    # Tags should be represented as array []
         
         if DEBUG:
             debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + ' - extra_data: ' + exta_data + '\n' )        
