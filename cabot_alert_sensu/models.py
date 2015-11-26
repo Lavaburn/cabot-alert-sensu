@@ -1,3 +1,10 @@
+# Cabot Alert Plugin - Sensu
+# --------------------------
+# * Currently only works for Graphite Checks
+# * Supposes you name the service as NAME@HOST so HOST can be used as source in Sensu
+# 
+# Nicolas Truyens <nicolas@truyens.com>
+
 from django.db import models
 #from django.conf import settings
 #from django.template import Context, Template
@@ -29,16 +36,18 @@ class SensuAlert(AlertPlugin):
             debug = open("/var/log/cabot/alert_sensu.log", "a")
             debug.write( 'Sending alert to Sensu.\n' )
             
-        parts = service.name.split("_")
+        parts = service.name.split("@")
         if (len(parts) == 1 or len(parts) == 2):
              if (len(parts) == 1):
                 source = 'network'
                 checkname = service.name
              else:
-                source = parts[0]
-                checkname = parts[1]
+                checkname = parts[0]
+                source = parts[1]
         else:
-            print "The service name should contain (maximum) 1 underscore to split up source and check name."
+            print "The service name should contain 1 @ to split up source and check name."
+            if DEBUG:
+                debug.write( 'The service name should contain 1 @ to split up source and check name.\n' )         
             # TODO - RAISE ERROR ?
             return
         
@@ -61,14 +70,17 @@ class SensuAlert(AlertPlugin):
             
             for raw_data_row in json.loads(result.raw_data):
                 datapoints = raw_data_row["datapoints"]
+                # TODO Remove/translate timestamps?
             
             extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'datapoints': datapoints }
         
-        # Tags
-        for linked_instance in service.instances.all():
-            instance_parts = linked_instance.name.split("_")
-            for part in instance_parts:
-                tags.append(part)
+        # Other Tags
+        
+        # REMOVED - Cabot will probably remove instances in newer releases.
+#         for linked_instance in service.instances.all():
+#             instance_parts = linked_instance.name.split("_")
+#             for part in instance_parts:
+#                 tags.append(part)
         
         for linked_check in service.status_checks.all():
             check_parts = linked_check.name.split("_")
@@ -78,7 +90,7 @@ class SensuAlert(AlertPlugin):
         hackpad = self.xstr(service.hackpad_id)
         hackpad_parts = hackpad.split(",")
         for part in hackpad_parts:
-            tags.append(part)            
+            tags.append(part)
         
         tags_unique = set(tags) # unique elements
         try:
