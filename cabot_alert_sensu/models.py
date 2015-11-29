@@ -68,9 +68,14 @@ class SensuAlert(AlertPlugin):
         for check in service.all_failing_checks():
             result = check.last_result()
             
-            for raw_data_row in json.loads(result.raw_data):
-                datapoints = raw_data_row["datapoints"]
-                # TODO Remove/translate timestamps?
+            try:
+                for raw_data_row in json.loads(result.raw_data):
+                    datapoints = raw_data_row["datapoints"]                 #TypeError: string indices must be integers
+                    # TODO Remove/translate timestamps?
+            except:
+                if DEBUG:
+                    debug.write( 'datapoints is not a valid array: '+datapoints.to_s+'\n' )
+                datapoints = ""
             
             extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'datapoints': datapoints }
         

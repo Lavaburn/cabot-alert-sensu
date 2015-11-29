@@ -2,8 +2,8 @@
 
 from setuptools import setup
 
-setup(name='cabot-alert-sensu',
-      version='1.0.0',
+setup(name='cabot_alert_sensu',
+      version='1.0.1',
       description='A Cabot alert plugin for Sensu',
       author='Nicolas Truyens',
       author_email='nicolas@truyens.com',
