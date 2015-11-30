@@ -81,7 +81,7 @@ class SensuAlert(AlertPlugin):
                         datapoints.push(datapoint[0])
                 except:
                     if DEBUG:
-                        debug.write( 'datapoints is not a valid key? JSON: '+result.raw_data.to_s+'\n' )
+                        debug.write( 'datapoints is not a valid key? Raw Data: '+self.xstr(result.raw_data)+'\n' )
                     
             extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'datapoints': datapoints }
                 
@@ -110,7 +110,7 @@ class SensuAlert(AlertPlugin):
             pass
         tags = list(tags_unique)    # Convert back to list (for JSON)
         
-        output = 'Service '+service.name+': '+str(service.overall_status)
+        output = 'Service '+service.name+': '+self.xstr(service.overall_status)
         exta_data = ', "extra_info": '+json.dumps(extra_info)+', "service_url": "'+self.xstr(service.url)+'", "tags": '+json.dumps(tags)    # Tags should be represented as array []
         
         if DEBUG:
@@ -120,19 +120,19 @@ class SensuAlert(AlertPlugin):
         for user in users:
             try:
                 if DEBUG:
-                    debug.write( 'USER FOUND! \n' )  # User does not have a to_s function !!
+                    debug.write( 'User found: '+self.xstr(user)+' \n' )
                 userData = SensuAlertUserData.objects.get(user=user, title=SensuAlertUserData.name)
                 if DEBUG:
-                    debug.write( 'USERDATA FOUND! \n' )  # User does not have a to_s function !!
+                    debug.write( 'UserData found: '+self.xstr(userData)+'\n' )
                 userHandlers = userData.handlers
                 if DEBUG:
-                    debug.write( 'HANDLERS FOUND! \n' )  # User does not have a to_s function !!
+                    debug.write( 'Handlers found: '+self.xstr(userHandlers)+'\n' )
                 parts = userHandlers.split(",")
                 for part in parts:
                     handlerList.append('"'+part+'"')
             except:
                 if DEBUG:
-                    debug.write( 'Error while getting userdata for user \n' ) # User does not have a to_s function !!
+                    debug.write( 'Error while getting userdata for user '+self.xstr(user)+'\n' )
             
         uniqueHandlerList = set(handlerList)
         handlers = "[" + ",".join(uniqueHandlerList) + "]"
