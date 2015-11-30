@@ -81,7 +81,7 @@ class SensuAlert(AlertPlugin):
                         datapoints.push(datapoint[0])
                 except:
                     if DEBUG:
-                        debug.write( 'datapoints is not a valid array: '+raw_data_row.to_s+'\n' )
+                        debug.write( 'datapoints is not a valid dict ?\n' ) # dict() does not have a to_s function !!
                     
             extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'datapoints': datapoints }
                 
@@ -127,7 +127,8 @@ class SensuAlert(AlertPlugin):
                 for part in parts:
                     handlerList.append('"'+part+'"')
             except:
-                pass
+                if DEBUG:
+                    debug.write( 'Error while getting userdata for user: ' + user +'\n' ) 
             
         uniqueHandlerList = set(handlerList)
         handlers = "[" + ",".join(uniqueHandlerList) + "]"
