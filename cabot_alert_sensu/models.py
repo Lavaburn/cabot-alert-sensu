@@ -121,14 +121,14 @@ class SensuAlert(AlertPlugin):
             try:
                 userData = SensuAlertUserData.objects.get(user=user, title=SensuAlertUserData.name)
                 if DEBUG:
-                    debug.write( 'User: ' + user + ' ; UserData: '+ userData.to_s +'\n' ) 
+                    debug.write( 'UserData: '+ userData.to_s +'\n' )  # User does not have a to_s function !!
                 userHandlers = userData.handlers
                 parts = userHandlers.split(",")
                 for part in parts:
                     handlerList.append('"'+part+'"')
             except:
                 if DEBUG:
-                    debug.write( 'Error while getting userdata for user: ' + user.to_s +'\n' ) 
+                    debug.write( 'Error while getting userdata for user \n' ) # User does not have a to_s function !!
             
         uniqueHandlerList = set(handlerList)
         handlers = "[" + ",".join(uniqueHandlerList) + "]"
