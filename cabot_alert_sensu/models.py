@@ -71,11 +71,10 @@ class SensuAlert(AlertPlugin):
                 datapoints = list()
                 
                 try:
-                    #TypeError: string indices must be integers
-                    datapoints_arr = raw_data_row["datapoints"]
+                    datapoints_arr = raw_data_row[0]["datapoints"]
                     
                     if DEBUG:
-                        debug.write( 'datapoints: '+datapoints_arr.to_s+'\n' )
+                        debug.write( 'datapoints: '+self.xstr(datapoints_arr)+'\n' )
                         
                     for datapoint in datapoints_arr:
                         datapoints.push(datapoint[0])
@@ -121,6 +120,10 @@ class SensuAlert(AlertPlugin):
             try:
                 if DEBUG:
                     debug.write( 'User found: '+self.xstr(user)+' \n' )
+                if DEBUG:
+                    debug.write( 'DEBUG_1: '+self.xstr(SensuAlertUserData.name)+'\n' )
+                    debug.write( 'DEBUG_2: '+self.xstr(SensuAlertUserData.objects)+'\n' )
+                    
                 userData = SensuAlertUserData.objects.get(user=user, title=SensuAlertUserData.name)
                 if DEBUG:
                     debug.write( 'UserData found: '+self.xstr(userData)+'\n' )
