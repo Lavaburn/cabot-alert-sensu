@@ -128,7 +128,7 @@ class SensuAlert(AlertPlugin):
                     handlerList.append('"'+part+'"')
             except:
                 if DEBUG:
-                    debug.write( 'Error while getting userdata for user: ' + user +'\n' ) 
+                    debug.write( 'Error while getting userdata for user: ' + user.to_s +'\n' ) 
             
         uniqueHandlerList = set(handlerList)
         handlers = "[" + ",".join(uniqueHandlerList) + "]"
