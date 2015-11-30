@@ -70,15 +70,11 @@ class SensuAlert(AlertPlugin):
             for raw_data_row in json.loads(result.raw_data):
                 datapoints = list()
                 
-                try:
-                    debug.write( 'DEBUG_1A: '+self.xstr(raw_data_row)+'\n' )
-                    debug.write( 'DEBUG_1B: '+self.xstr(raw_data_row[0])+'\n' )
-                    debug.write( 'DEBUG_1C: '+self.xstr(raw_data_row[0]["datapoints"])+'\n' )
-                    
-#                     datapoints_arr = raw_data_row[0]["datapoints"]
-#                                              
-#                     for datapoint in datapoints_arr:
-#                         datapoints.push(datapoint[0])
+                try:     
+                    datapoints_arr = raw_data_row['datapoints']
+
+                    for datapoint in datapoints_arr:
+                        datapoints.append(datapoint[0])
                 except:
                     if DEBUG:
                         debug.write( 'datapoints is not a valid key? Raw Data: '+self.xstr(raw_data_row)+'\n' )
@@ -120,20 +116,21 @@ class SensuAlert(AlertPlugin):
         handlerList = list()
         
         try:           
-            handlers = SensuAlertUserData.objects.filter(user__user__in=users)
+            userdataset = SensuAlertUserData.objects.filter(user__user__in=users)
         except:
             handlers = list()
             if DEBUG:
                 debug.write( 'Error while getting userdata for users '+self.xstr(users)+'\n' )
         
-        for handler in handlers:
+        for userdata in userdataset:            
             try:                
+                handler = userdata.handler
                 parts = handler.split(",")
                 for part in parts:
                     handlerList.append('"'+part+'"')
             except:
                 if DEBUG:
-                    debug.write( 'Error while getting handler: '+self.xstr(handler)+'\n' )
+                    debug.write( 'Error while getting handler (userdata): '+self.xstr(userdata)+'\n' )
             
         uniqueHandlerList = set(handlerList)
         handlers = "[" + ",".join(uniqueHandlerList) + "]"
