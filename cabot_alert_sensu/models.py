@@ -81,7 +81,7 @@ class SensuAlert(AlertPlugin):
                         datapoints.push(datapoint[0])
                 except:
                     if DEBUG:
-                        debug.write( 'datapoints is not a valid dict ? '+dir(raw_data_row)+'\n' ) # dict() does not have a to_s function !!
+                        debug.write( 'datapoints is not a valid key? JSON: '+result.raw_data.to_s+'\n' )
                     
             extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'datapoints': datapoints }
                 
@@ -119,16 +119,20 @@ class SensuAlert(AlertPlugin):
         handlerList = list()         
         for user in users:
             try:
+                if DEBUG:
+                    debug.write( 'USER FOUND! \n' )  # User does not have a to_s function !!
                 userData = SensuAlertUserData.objects.get(user=user, title=SensuAlertUserData.name)
                 if DEBUG:
-                    debug.write( 'UserData: '+dir(userData)+'\n' )  # User does not have a to_s function !!
+                    debug.write( 'USERDATA FOUND! \n' )  # User does not have a to_s function !!
                 userHandlers = userData.handlers
+                if DEBUG:
+                    debug.write( 'HANDLERS FOUND! \n' )  # User does not have a to_s function !!
                 parts = userHandlers.split(",")
                 for part in parts:
                     handlerList.append('"'+part+'"')
             except:
                 if DEBUG:
-                    debug.write( 'Error while getting userdata for user '+dir(user)+'\n' ) # User does not have a to_s function !!
+                    debug.write( 'Error while getting userdata for user \n' ) # User does not have a to_s function !!
             
         uniqueHandlerList = set(handlerList)
         handlers = "[" + ",".join(uniqueHandlerList) + "]"
