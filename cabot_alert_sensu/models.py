@@ -121,10 +121,8 @@ class SensuAlert(AlertPlugin):
         
         for userdata in userdataset:            
             try:            
-                debug.write( 'DEBUG 3A - ' + str(userdata) )
-                debug.write( 'DEBUG 3B - ' + str(userdata.handlers) ) 
-                handler = userdata.handlers
-                parts = handlers.split(",")
+                userhandlers = userdata.handlers
+                parts = userhandlers.split(",")
                 for part in parts:
                     handlerList.append('"'+part+'"')
             except:
