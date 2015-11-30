@@ -6,8 +6,6 @@
 # Nicolas Truyens <nicolas@truyens.com>
 
 from django.db import models
-#from django.conf import settings
-#from django.template import Context, Template
 
 from cabot.cabotapp.alert import AlertPlugin, AlertPluginUserData
 
@@ -16,7 +14,6 @@ from os import environ as env
 import socket
 import sys
 import json
-#import requests
 
 sensu_port = env.get('SENSU_PORT') or 3030              # Integer required !!!
 sensu_host = env.get('SENSU_HOST') or 'localhost'
@@ -118,19 +115,19 @@ class SensuAlert(AlertPlugin):
         try:           
             userdataset = SensuAlertUserData.objects.filter(user__user__in=users)
         except:
-            handlers = list()
+            userdataset = list()
             if DEBUG:
                 debug.write( 'Error while getting userdata for users '+self.xstr(users)+'\n' )
         
         for userdata in userdataset:            
             try:                
-                handler = userdata.handler
-                parts = handler.split(",")
+                handler = userdata.handlers
+                parts = handlers.split(",")
                 for part in parts:
                     handlerList.append('"'+part+'"')
             except:
                 if DEBUG:
-                    debug.write( 'Error while getting handler (userdata): '+self.xstr(userdata)+'\n' )
+                    debug.write( 'Error while getting handlers (userdata): '+self.xstr(userdata)+'\n' )
             
         uniqueHandlerList = set(handlerList)
         handlers = "[" + ",".join(uniqueHandlerList) + "]"
