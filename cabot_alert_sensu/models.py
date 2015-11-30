@@ -120,7 +120,9 @@ class SensuAlert(AlertPlugin):
                 debug.write( 'Error while getting userdata for users '+self.xstr(users)+'\n' )
         
         for userdata in userdataset:            
-            try:                
+            try:            
+                debug.write( 'DEBUG 3A - ' + str(userdata) )
+                debug.write( 'DEBUG 3B - ' + str(userdata.handlers) ) 
                 handler = userdata.handlers
                 parts = handlers.split(",")
                 for part in parts:
