@@ -47,7 +47,7 @@ class SensuAlert(AlertPlugin):
         else:
             print "The service name should contain 1 @ to split up source and check name."
             if DEBUG:
-                debug.write( 'The service name should contain 1 @ to split up source and check name.\n' )         
+                debug.write( 'The service name should contain 1 @ to split up source and check name. Name = '+self.xstr(service.name)+'\n' )         
             # TODO - RAISE ERROR ?
             return
         
@@ -71,16 +71,17 @@ class SensuAlert(AlertPlugin):
                 datapoints = list()
                 
                 try:
-                    datapoints_arr = raw_data_row[0]["datapoints"]
+                    debug.write( 'DEBUG_1A: '+self.xstr(raw_data_row)+'\n' )
+                    debug.write( 'DEBUG_1B: '+self.xstr(raw_data_row[0])+'\n' )
+                    debug.write( 'DEBUG_1C: '+self.xstr(raw_data_row[0]["datapoints"])+'\n' )
                     
-                    if DEBUG:
-                        debug.write( 'datapoints: '+self.xstr(datapoints_arr)+'\n' )
-                        
-                    for datapoint in datapoints_arr:
-                        datapoints.push(datapoint[0])
+#                     datapoints_arr = raw_data_row[0]["datapoints"]
+#                                              
+#                     for datapoint in datapoints_arr:
+#                         datapoints.push(datapoint[0])
                 except:
                     if DEBUG:
-                        debug.write( 'datapoints is not a valid key? Raw Data: '+self.xstr(result.raw_data)+'\n' )
+                        debug.write( 'datapoints is not a valid key? Raw Data: '+self.xstr(raw_data_row)+'\n' )
                     
             extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'datapoints': datapoints }
                 
@@ -120,19 +121,16 @@ class SensuAlert(AlertPlugin):
             try:
                 if DEBUG:
                     debug.write( 'User found: '+self.xstr(user)+' \n' )
-                if DEBUG:
-                    debug.write( 'DEBUG_1: '+self.xstr(SensuAlertUserData.name)+'\n' )
-                    debug.write( 'DEBUG_2: '+self.xstr(SensuAlertUserData.objects)+'\n' )
-                    
-                userData = SensuAlertUserData.objects.get(user=user, title=SensuAlertUserData.name)
-                if DEBUG:
-                    debug.write( 'UserData found: '+self.xstr(userData)+'\n' )
-                userHandlers = userData.handlers
-                if DEBUG:
-                    debug.write( 'Handlers found: '+self.xstr(userHandlers)+'\n' )
-                parts = userHandlers.split(",")
-                for part in parts:
-                    handlerList.append('"'+part+'"')
+                
+                debug.write( 'DEBUG_2A: '+self.xstr(SensuAlertUserData.objects.filter(user__user__in=users)+'\n' )
+                debug.write( 'DEBUG_2B: '+self.xstr(SensuAlertUserData.objects.get(user=user, title=SensuAlertUserData.name)+'\n' )
+                
+#                 userData = SensuAlertUserData.objects.get(user=user, title=SensuAlertUserData.name)
+#                 userHandlers = userData.handlers
+# 
+#                 parts = userHandlers.split(",")
+#                 for part in parts:
+#                     handlerList.append('"'+part+'"')
             except:
                 if DEBUG:
                     debug.write( 'Error while getting userdata for user '+self.xstr(user)+'\n' )
