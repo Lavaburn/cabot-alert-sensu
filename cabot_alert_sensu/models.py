@@ -67,18 +67,24 @@ class SensuAlert(AlertPlugin):
         extra_info = dict()
         for check in service.all_failing_checks():
             result = check.last_result()
-            
-            try:
-                for raw_data_row in json.loads(result.raw_data):
-                    datapoints = raw_data_row["datapoints"]                 #TypeError: string indices must be integers
-                    # TODO Remove/translate timestamps?
-            except:
-                if DEBUG:
-                    debug.write( 'datapoints is not a valid array: '+datapoints.to_s+'\n' )
-                datapoints = ""
-            
+            for raw_data_row in json.loads(result.raw_data):
+                datapoints = list()
+                
+                try:
+                    #TypeError: string indices must be integers
+                    datapoints_arr = raw_data_row["datapoints"]
+                    
+                    if DEBUG:
+                        debug.write( 'datapoints: '+datapoints_arr.to_s+'\n' )
+                        
+                    for datapoint in datapoints_arr:
+                        datapoints.push(datapoint[0])
+                except:
+                    if DEBUG:
+                        debug.write( 'datapoints is not a valid array: '+raw_data_row.to_s+'\n' )
+                    
             extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'datapoints': datapoints }
-        
+                
         # Other Tags
         
         # REMOVED - Cabot will probably remove instances in newer releases.
@@ -114,6 +120,8 @@ class SensuAlert(AlertPlugin):
         for user in users:
             try:
                 userData = SensuAlertUserData.objects.get(user=user, title=SensuAlertUserData.name)
+                if DEBUG:
+                    debug.write( 'User: ' + user + ' ; UserData: '+ userData.to_s +'\n' ) 
                 userHandlers = userData.handlers
                 parts = userHandlers.split(",")
                 for part in parts:
