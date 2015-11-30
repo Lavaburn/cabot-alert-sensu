@@ -122,10 +122,9 @@ class SensuAlert(AlertPlugin):
                 if DEBUG:
                     debug.write( 'User found: '+self.xstr(user)+' \n' )
                 
-                debug.write( 'DEBUG_2A: '+self.xstr(SensuAlertUserData.objects.filter(user__user__in=users)+'\n' )
-                debug.write( 'DEBUG_2B: '+self.xstr(SensuAlertUserData.objects.get(user=user, title=SensuAlertUserData.name)+'\n' )
-                
-#                 userData = SensuAlertUserData.objects.get(user=user, title=SensuAlertUserData.name)
+                debug.write( 'DEBUG_2A: '+self.xstr(SensuAlertUserData.objects.filter(user__user__in=users))+'\n' )
+                debug.write( 'DEBUG_2B: '+self.xstr(SensuAlertUserData.objects.get(user=user, title=SensuAlertUserData.name))+'\n' )
+                  
 #                 userHandlers = userData.handlers
 # 
 #                 parts = userHandlers.split(",")
