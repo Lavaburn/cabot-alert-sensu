@@ -116,23 +116,24 @@ class SensuAlert(AlertPlugin):
         if DEBUG:
             debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + ' - extra_data: ' + exta_data + '\n' )        
         
-        handlerList = list()         
-        for user in users:
-            try:
-                if DEBUG:
-                    debug.write( 'User found: '+self.xstr(user)+' \n' )
-                
-                debug.write( 'DEBUG_2A: '+self.xstr(SensuAlertUserData.objects.filter(user__user__in=users))+'\n' )
-                debug.write( 'DEBUG_2B: '+self.xstr(SensuAlertUserData.objects.get(user=user, title=SensuAlertUserData.name))+'\n' )
-                  
-#                 userHandlers = userData.handlers
-# 
-#                 parts = userHandlers.split(",")
-#                 for part in parts:
-#                     handlerList.append('"'+part+'"')
+        # Handlers
+        handlerList = list()
+        
+        try:           
+            handlers = SensuAlertUserData.objects.filter(user__user__in=users)
+        except:
+            handlers = list()
+            if DEBUG:
+                debug.write( 'Error while getting userdata for users '+self.xstr(users)+'\n' )
+        
+        for handler in handlers:
+            try:                
+                parts = handler.split(",")
+                for part in parts:
+                    handlerList.append('"'+part+'"')
             except:
                 if DEBUG:
-                    debug.write( 'Error while getting userdata for user '+self.xstr(user)+'\n' )
+                    debug.write( 'Error while getting handler: '+self.xstr(handler)+'\n' )
             
         uniqueHandlerList = set(handlerList)
         handlers = "[" + ",".join(uniqueHandlerList) + "]"
