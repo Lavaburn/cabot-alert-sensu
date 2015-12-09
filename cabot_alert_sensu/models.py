@@ -113,11 +113,12 @@ class SensuAlert(AlertPlugin):
         output = 'Service '+service.name+': '+self.xstr(service.overall_status)
         exta_data = ', "extra_info": '+json.dumps(extra_info)+', "service_url": "'+self.xstr(service.url)+'", "tags": '+json.dumps(tags)    # Tags should be represented as array []
 
+        extra_data = ""
         if check_graphs != "":
             extra_data += ', ' + check_graphs
         
         if DEBUG:
-            debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + ' - extra_data: ' + exta_data + '\n' )        
+            debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + ' - extra_data: ' + exta_data + '\n' )
         
         # Handlers
         handlerList = list()
