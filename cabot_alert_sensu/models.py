@@ -63,6 +63,7 @@ class SensuAlert(AlertPlugin):
         elif service.overall_status == service.ERROR_STATUS:
             status = '3'
         
+        graphs = list()
         extra_info = dict()
         for check in service.all_failing_checks():
             result = check.last_result()
@@ -80,8 +81,10 @@ class SensuAlert(AlertPlugin):
             
             # Replacing 'datapoints': datapoints with 'graph': url
             url = graphite_api+'render?from='+graphite_from+'&until=now&width=500&height=200&target='+check.metric+'&uchiwa_force_image=.jpg'
+            graphs.append('graph_'+check.name+': '+url)
             extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'graph': url } 
             
+        check_graphs = ','.join(graphs)
         # Other Tags
         
         # REMOVED - Cabot will probably remove instances in newer releases.
@@ -109,6 +112,9 @@ class SensuAlert(AlertPlugin):
         
         output = 'Service '+service.name+': '+self.xstr(service.overall_status)
         exta_data = ', "extra_info": '+json.dumps(extra_info)+', "service_url": "'+self.xstr(service.url)+'", "tags": '+json.dumps(tags)    # Tags should be represented as array []
+
+        if check_graphs != "":
+            extra_data += ', ' + check_graphs
         
         if DEBUG:
             debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + ' - extra_data: ' + exta_data + '\n' )        
