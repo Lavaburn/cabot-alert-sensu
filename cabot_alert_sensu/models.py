@@ -17,6 +17,8 @@ import json
 
 sensu_port = env.get('SENSU_PORT') or 3030              # Integer required !!!
 sensu_host = env.get('SENSU_HOST') or 'localhost'
+graphite_api = env.get('GRAPHITE_API') or 'http://localhost/'
+graphite_from = env.get('GRAPHITE_FROM') or '-10min'
 DEBUG = env.get('SENSU_DEBUG') or False
 
 class SensuAlert(AlertPlugin):
@@ -60,7 +62,7 @@ class SensuAlert(AlertPlugin):
             status = '2'
         elif service.overall_status == service.ERROR_STATUS:
             status = '3'
-                
+        
         extra_info = dict()
         for check in service.all_failing_checks():
             result = check.last_result()
@@ -75,9 +77,11 @@ class SensuAlert(AlertPlugin):
                 except:
                     if DEBUG:
                         debug.write( 'datapoints is not a valid key? Raw Data: '+self.xstr(raw_data_row)+'\n' )
-                    
-            extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'datapoints': datapoints }
-                
+            
+            # Replacing 'datapoints': datapoints with 'graph': url
+            url = graphite_api+'render?from='+graphite_from+'&until=now&width=500&height=200&target='+check.metric+'&uchiwa_force_image=.jpg'
+            extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'graph': url } 
+            
         # Other Tags
         
         # REMOVED - Cabot will probably remove instances in newer releases.
