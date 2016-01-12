@@ -122,11 +122,11 @@ class SensuAlert(AlertPlugin):
         extra.append('"tags": '+json.dumps(tags))        
         extra.append('"service_url": "'+service_url+'"')
         
-        if graphs.length > 0:
-            extra.append(graphs.join(','))
+        if len(graphs) > 0:
+            extra.append(','.join(graphs))
             
-        if extra.length > 0: 
-            extra_data = ", " + extra.join(',')
+        if len(extra) > 0: 
+            extra_data = ", " + ','.join(extra)
         else:
             extra_data = "" 
         
