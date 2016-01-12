@@ -14,6 +14,8 @@ from os import environ as env
 import socket
 import sys
 import json
+import urllib
+# From Python 3: urlib.parse.quote 
 
 sensu_port = env.get('SENSU_PORT') or 3030              # Integer required !!!
 sensu_host = env.get('SENSU_HOST') or 'localhost'
@@ -81,7 +83,7 @@ class SensuAlert(AlertPlugin):
                         debug.write( 'datapoints is not a valid key? Raw Data: '+self.xstr(raw_data_row)+'\n' )
             
             url = graphite_api+'render?from='+graphite_from+'&until=now&width=500&height=200&target='+check.metric+'&uchiwa_force_image=.jpg'
-            graphs.append('"graph_'+check.name+'": "'+url+'"')
+            graphs.append('"graph_'+check.name+'": "'+urllib.quote(url)+'"')
             
             extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error }  #, 'graph': url, 'datapoints': datapoints 
        
@@ -108,7 +110,7 @@ class SensuAlert(AlertPlugin):
         tags = list(tags_unique)    # Convert back to list (for JSON)
         
         # Service URL
-        service_url = service.url
+        service_url = urllib.quote(service.url)
         
         if DEBUG:
             debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + '\n' )
