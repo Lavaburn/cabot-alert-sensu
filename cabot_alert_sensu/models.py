@@ -79,12 +79,19 @@ class SensuAlert(AlertPlugin):
                     if DEBUG:
                         debug.write( 'datapoints is not a valid key? Raw Data: '+self.xstr(raw_data_row)+'\n' )
             
-            # Replacing 'datapoints': datapoints with 'graph': url
             url = graphite_api+'render?from='+graphite_from+'&until=now&width=500&height=200&target='+check.metric+'&uchiwa_force_image=.jpg'
             graphs.append('graph_'+check.name+': '+url)
-            extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error, 'graph': url } 
+            
+            if DEBUG:
+                debug.write( 'Check '+check.name+' is failing. Graph URL = '+url+'\n' )     
+            
+            extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error }  #, 'graph': url, 'datapoints': datapoints 
             
         check_graphs = ','.join(graphs)
+        
+        if DEBUG:
+            debug.write( 'Graphs: '+check_graphs+'\n' )     
+                
         # Other Tags
         
         # REMOVED - Cabot will probably remove instances in newer releases.
