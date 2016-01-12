@@ -118,12 +118,12 @@ class SensuAlert(AlertPlugin):
                      
         # Combine Extra Data
         extra = list()
-        extra.push('"extra_info": '+json.dumps(extra_info))
-        extra.push('"tags": '+json.dumps(tags))        
-        extra.push('"service_url": "'+service_url+'"')
+        extra.append('"extra_info": '+json.dumps(extra_info))
+        extra.append('"tags": '+json.dumps(tags))        
+        extra.append('"service_url": "'+service_url+'"')
         
         if graphs.length > 0:
-            extra.push(graphs.join(','))
+            extra.append(graphs.join(','))
             
         if extra.length > 0: 
             extra_data = ", " + extra.join(',')
