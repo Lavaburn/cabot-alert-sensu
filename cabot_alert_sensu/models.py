@@ -82,8 +82,8 @@ class SensuAlert(AlertPlugin):
                     if DEBUG:
                         debug.write( 'datapoints is not a valid key? Raw Data: '+self.xstr(raw_data_row)+'\n' )
             
-            url = graphite_api+'render?from='+graphite_from+'&until=now&width=500&height=200&target='+check.metric+'&uchiwa_force_image=.jpg'
-            graphs.append('"graph_'+check.name+'": "'+urllib.quote(url)+'"')
+            url = graphite_api+'render?from='+graphite_from+'&until=now&width=500&height=200&target='+urllib.quote(check.metric)+'&uchiwa_force_image=.jpg'
+            graphs.append('"graph_'+check.name+'": "'+url+'"')
             
             extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error }  #, 'graph': url, 'datapoints': datapoints 
        
@@ -110,7 +110,7 @@ class SensuAlert(AlertPlugin):
         tags = list(tags_unique)    # Convert back to list (for JSON)
         
         # Service URL
-        service_url = urllib.quote(service.url)
+        service_url = service.url
         
         if DEBUG:
             debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + '\n' )
