@@ -35,6 +35,7 @@ class SensuAlert(AlertPlugin):
             debug = open("/var/log/cabot/alert_sensu.log", "a")
             debug.write( 'Sending alert to Sensu.\n' )
             
+        # Host & Check
         parts = service.name.split("@")
         if (len(parts) == 1 or len(parts) == 2):
              if (len(parts) == 1):
@@ -50,10 +51,7 @@ class SensuAlert(AlertPlugin):
             # TODO - RAISE ERROR ?
             return
         
-        tags = list()    
-        tags.append(source)
-        tags.append(checkname)
-            
+        # Status            
         if service.overall_status == service.PASSING_STATUS:
             status = '0'
         elif service.overall_status == service.WARNING_STATUS:
@@ -62,7 +60,10 @@ class SensuAlert(AlertPlugin):
             status = '2'
         elif service.overall_status == service.ERROR_STATUS:
             status = '3'
+            
+        output = 'Service '+service.name+': '+self.xstr(service.overall_status)
         
+        # Extra Info
         graphs = list()
         extra_info = dict()
         for check in service.all_failing_checks():
@@ -80,26 +81,15 @@ class SensuAlert(AlertPlugin):
                         debug.write( 'datapoints is not a valid key? Raw Data: '+self.xstr(raw_data_row)+'\n' )
             
             url = graphite_api+'render?from='+graphite_from+'&until=now&width=500&height=200&target='+check.metric+'&uchiwa_force_image=.jpg'
-            graphs.append('graph_'+check.name+': '+url)
-            
-            if DEBUG:
-                debug.write( 'Check '+check.name+' is failing. Graph URL = '+url+'\n' )     
+            graphs.append('"graph_'+check.name+'": "'+url+'"')
             
             extra_info[check.name] = { 'metric': check.metric, 'took': str(result.took)+' ms', 'error': result.error }  #, 'graph': url, 'datapoints': datapoints 
-            
-        check_graphs = ','.join(graphs)
-        
-        if DEBUG:
-            debug.write( 'Graphs: '+check_graphs+'\n' )     
+       
+        # Tags
+        tags = list()    
+        tags.append(source)
+        tags.append(checkname)
                 
-        # Other Tags
-        
-        # REMOVED - Cabot will probably remove instances in newer releases.
-#         for linked_instance in service.instances.all():
-#             instance_parts = linked_instance.name.split("_")
-#             for part in instance_parts:
-#                 tags.append(part)
-        
         for linked_check in service.status_checks.all():
             check_parts = linked_check.name.split("_")
             for part in check_parts:
@@ -117,15 +107,31 @@ class SensuAlert(AlertPlugin):
             pass
         tags = list(tags_unique)    # Convert back to list (for JSON)
         
-        output = 'Service '+service.name+': '+self.xstr(service.overall_status)
-        exta_data = ', "extra_info": '+json.dumps(extra_info)+', "service_url": "'+self.xstr(service.url)+'", "tags": '+json.dumps(tags)    # Tags should be represented as array []
-
-        extra_data = ""
-        if check_graphs != "":
-            extra_data += ', ' + check_graphs
+        # Service URL
+        service_url = service.url
         
         if DEBUG:
-            debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + ' - extra_data: ' + exta_data + '\n' )
+            debug.write( 'source: ' + source + ' - name: ' + checkname + ' - status: ' + status + ' - output: ' + output + '\n' )
+            debug.write( 'extra_info: ' + json.dumps(extra_info) + '\n' )
+            debug.write( 'graphs: ' + json.dumps(graphs) + '\n' )
+            debug.write( 'service_url: ' + service_url + ' - tags: ' + json.dumps(tags) + '\n' )
+                     
+        # Combine Extra Data
+        extra = list()
+        extra.push('"extra_info": '+json.dumps(extra_info))
+        extra.push('"tags": '+json.dumps(tags))        
+        extra.push('"service_url": "'+service_url+'"')
+        
+        if graphs.length > 0:
+            extra.push(graphs.join(','))
+            
+        if extra.length > 0: 
+            extra_data = ", " + extra.join(',')
+        else:
+            extra_data = "" 
+        
+        if DEBUG:
+            debug.write( 'extra_data: ' + extra_data + '\n' )
         
         # Handlers
         handlerList = list()
@@ -149,23 +155,24 @@ class SensuAlert(AlertPlugin):
             
         uniqueHandlerList = set(handlerList)
         handlers = "[" + ",".join(uniqueHandlerList) + "]"
-                
+
         if DEBUG:
             debug.write( 'handlers: ' + handlers + '\n' )        
             debug.close()
             
-        self._send_sensu_alert(source=source, check=checkname, status=status, output=output, handlers=handlers, exta_data=exta_data)
+        # Push
+        self._send_sensu_alert(source=source, check=checkname, status=status, output=output, handlers=handlers, extra_data=extra_data)
                 
         return
     
-    def _send_sensu_alert(self, source, check, status, output, handlers, exta_data=''):
+    def _send_sensu_alert(self, source, check, status, output, handlers, extra_data=''):
         try: 
             port = int(sensu_port)
         except ValueError:
             port = sensu_port
                 
         ADDR = (sensu_host, port)
-        DATA = '{"name": "'+check+'", "source": "'+source+'", "status": '+status+', "output": "'+output+'", "handlers": '+handlers+exta_data+' }'
+        DATA = '{"name": "'+check+'", "source": "'+source+'", "status": '+status+', "output": "'+output+'", "handlers": '+handlers+extra_data+' }'
         
         if DEBUG:
             debug = open("/var/log/cabot/alert_sensu.log", "a")
